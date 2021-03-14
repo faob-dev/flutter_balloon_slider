@@ -8,7 +8,7 @@ Balloon slider widget with floating balloon animation, inspired from [Balloon Pi
 Add dependency in `pubspec.yaml`:
 ```yaml
 dependencies:
-  flutter_balloon_slider: "^0.1.0"
+  flutter_balloon_slider: "^0.1.1"
 ```
 
 Import in your project:
@@ -36,7 +36,7 @@ BalloonSlider(
 
 ### Demo
 
-##### v 0.1.0
+##### v 0.1.1
 ![alt tag](https://raw.githubusercontent.com/faob-dev/flutter_balloon_slider/master/screenshots/balloon_slider.gif)
 
 ## Changelog

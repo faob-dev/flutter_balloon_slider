@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:math';
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -9,22 +10,22 @@ class BalloonSliderWidget extends LeafRenderObjectWidget {
   final double value;
   final double ropeLength;
   final bool showRope;
-  final ValueChanged<double> onChangeStart;
+  final ValueChanged<double>? onChangeStart;
   final ValueChanged<double> onChanged;
-  final ValueChanged<double> onChangeEnd;
-  final Color color;
+  final ValueChanged<double>? onChangeEnd;
+  final Color? color;
   final BalloonSliderState state;
 
   BalloonSliderWidget(
-      {Key key,
-      this.value,
-      this.ropeLength,
-      this.showRope,
+      {Key? key,
+      required this.value,
+      this.ropeLength = 0,
+      this.showRope = false,
       this.onChangeStart,
-      this.onChanged,
+      required this.onChanged,
       this.onChangeEnd,
       this.color,
-      this.state})
+      required this.state})
       : super(key: key);
 
   @override
@@ -36,7 +37,7 @@ class BalloonSliderWidget extends LeafRenderObjectWidget {
         onChangeStart: onChangeStart,
         onChanged: onChanged,
         onChangeEnd: onChangeEnd,
-        color: color,
+        color: color ?? Theme.of(context).primaryColor,
         state: state,
         textDirection: Directionality.of(context));
   }
@@ -51,28 +52,24 @@ class BalloonSliderWidget extends LeafRenderObjectWidget {
       ..onChangeStart = onChangeStart
       ..onChanged = onChanged
       ..onChangeEnd = onChangeEnd
-      ..color = color
+      ..color = color ?? Theme.of(context).primaryColor
       ..textDirection = Directionality.of(context);
   }
 }
 
 class _BalloonSliderRender extends RenderBox {
   _BalloonSliderRender(
-      {@required double value,
-      Color color,
-      double ropeLength,
-      bool showRope,
+      {required double value,
+      required Color color,
+      double ropeLength = 0,
+      bool showRope = false,
       this.onChangeStart,
-      @required this.onChanged,
+      required this.onChanged,
       this.onChangeEnd,
-      TextDirection textDirection,
-      BalloonSliderState state})
-      : assert(value != null && value >= 0.0 && value <= 1.0),
-        assert(ropeLength != null && ropeLength >= 0),
-        assert(showRope != null),
-        assert(onChanged != null),
-        assert(state != null),
-        assert(textDirection != null),
+      required TextDirection textDirection,
+      required BalloonSliderState state})
+      : assert(value >= 0.0 && value <= 1.0),
+        assert(ropeLength >= 0),
         _value = value,
         _color = color,
         _ropeLength = ropeLength,
@@ -95,7 +92,7 @@ class _BalloonSliderRender extends RenderBox {
   double _value;
 
   set value(double val) {
-    assert(val != null && val >= 0.0 && val <= 1.0);
+    assert(val >= 0.0 && val <= 1.0);
     if (val == _value) {
       return;
     }
@@ -107,7 +104,7 @@ class _BalloonSliderRender extends RenderBox {
   double _ropeLength;
 
   set ropeLength(double val) {
-    assert(val != null);
+    assert(val >= 0);
     if (val == _ropeLength) {
       return;
     }
@@ -119,7 +116,6 @@ class _BalloonSliderRender extends RenderBox {
   bool _showRope;
 
   set showRope(bool val) {
-    assert(val != null);
     if (val == _showRope) {
       return;
     }
@@ -127,15 +123,14 @@ class _BalloonSliderRender extends RenderBox {
     markNeedsPaint();
   }
 
-  ValueChanged<double> onChangeStart;
+  ValueChanged<double>? onChangeStart;
   ValueChanged<double> onChanged;
-  ValueChanged<double> onChangeEnd;
+  ValueChanged<double>? onChangeEnd;
 
   Color get color => _color;
   Color _color;
 
   set color(Color val) {
-    assert(val != null);
     if (val == _color) {
       return;
     }
@@ -148,7 +143,6 @@ class _BalloonSliderRender extends RenderBox {
   TextDirection _textDirection;
 
   set textDirection(TextDirection val) {
-    assert(val != null);
     if (val == _textDirection) {
       return;
     }
@@ -164,32 +158,32 @@ class _BalloonSliderRender extends RenderBox {
 
   double _thumbRadius = 10;
   double _balloonScale = 0;
-  double _preBalloonOffsetX;
+  double? _preBalloonOffsetX;
   final double _balloonWidth = 50;
   final double _balloonHeight = 70;
 
-  HorizontalDragGestureRecognizer _drag;
+  late HorizontalDragGestureRecognizer _drag;
   TextPainter _textPainter = TextPainter();
-  Path _balloonPath;
+  Path? _balloonPath;
   double _oldValue = -1;
-  double _minWidth;
-  double _minHeight;
+  late double _minWidth;
+  late double _minHeight;
 
-  Paint _trackPaint;
-  Paint _progressPaint;
-  Paint _thumbPaint;
-  Paint _ropePaint;
-  Paint _balloonPaint;
+  late Paint _trackPaint;
+  late Paint _progressPaint;
+  late Paint _thumbPaint;
+  late Paint _ropePaint;
+  late Paint _balloonPaint;
 
   @override
   void attach(PipelineOwner owner) {
     super.attach(owner);
-    _state?.controller?.addListener(markNeedsPaint);
+    _state.controller.addListener(markNeedsPaint);
   }
 
   @override
   void detach() {
-    _state?.controller?.removeListener(markNeedsPaint);
+    _state.controller.removeListener(markNeedsPaint);
     super.detach();
   }
 
@@ -220,12 +214,12 @@ class _BalloonSliderRender extends RenderBox {
     }
 
     Rect balloonRect = _getBalloonRect(
-        offset: Offset(_preBalloonOffsetX - _balloonWidth / 2, offset.dy),
+        offset: Offset(_preBalloonOffsetX! - _balloonWidth / 2, offset.dy),
         parentSize: size);
 
     double targetOffset = thumbRect.center.dx;
     double diff = thumbRect.center.dx - balloonRect.center.dx;
-    var balloonOffsetX = _preBalloonOffsetX + diff / 10.0;
+    var balloonOffsetX = _preBalloonOffsetX! + diff / 10.0;
     if (diff > 0) {
       balloonOffsetX = min(balloonOffsetX, targetOffset);
     } else {
@@ -271,7 +265,7 @@ class _BalloonSliderRender extends RenderBox {
         ..close();
     }
 
-    canvas.drawPath(_balloonPath, _balloonPaint);
+    canvas.drawPath(_balloonPath!, _balloonPaint);
     canvas.rotate(-angle);
 
     //draw text
@@ -293,7 +287,7 @@ class _BalloonSliderRender extends RenderBox {
 
   void _onDragStart(DragStartDetails details) {
     if (!_active) {
-      if (onChangeStart != null) onChangeStart(_value);
+      if (onChangeStart != null) onChangeStart!(_value);
 
       Rect _trackRect = _getTrackRect();
       _currentDragValue =
@@ -302,8 +296,8 @@ class _BalloonSliderRender extends RenderBox {
       _value = _currentDragValue.clamp(0.0, 1.0);
       onChanged(_value);
 
-      _state?.animationEndTimer?.cancel();
-      _state?.controller?.repeat();
+      _state.animationEndTimer?.cancel();
+      _state.controller.repeat();
       _active = true;
     }
   }
@@ -311,7 +305,7 @@ class _BalloonSliderRender extends RenderBox {
   void _onDragUpdate(DragUpdateDetails details) {
     if (_active) {
       Rect _trackRect = _getTrackRect();
-      _currentDragValue += details.primaryDelta / _trackRect.width;
+      _currentDragValue += details.primaryDelta! / _trackRect.width;
       final progress = _currentDragValue.clamp(0.0, 1.0);
       if (_value != progress) {
         _value = progress;
@@ -326,13 +320,13 @@ class _BalloonSliderRender extends RenderBox {
 
   void _handleDragEnd() {
     if (_active && _state.mounted) {
-      if (onChangeEnd != null) onChangeEnd(_value);
+      if (onChangeEnd != null) onChangeEnd!(_value);
 
-      _state?.animationEndTimer?.cancel();
-      _state?.animationEndTimer = Timer(Duration(milliseconds: 1500), () {
-        _state?.animationEndTimer = null;
+      _state.animationEndTimer?.cancel();
+      _state.animationEndTimer = Timer(Duration(milliseconds: 1500), () {
+        _state.animationEndTimer = null;
         _balloonScale = 0;
-        _state?.controller?.stop();
+        _state.controller.stop();
       });
 
       _currentDragValue = 0.0;

@@ -1,11 +1,10 @@
 name: flutter_balloon_slider
 description: Balloon slider widget with floating balloon animation and material design look.
-version: 0.1.0
-author: Farrukh <faob.dev@gmail.com>
+version: 0.1.1
 homepage: https://github.com/faob-dev/flutter_balloon_slider
 
 environment:
-  sdk: ">=2.1.0 <3.0.0"
+  sdk: '>=2.12.0 <3.0.0'
 
 dependencies:
   flutter:
